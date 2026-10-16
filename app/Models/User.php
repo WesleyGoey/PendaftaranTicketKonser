@@ -47,4 +47,12 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    /**
+     * Get the user's ticket purchases.
+     */
+    public function ticketPurchases()
+    {
+        return $this->hasMany(TicketPurchase::class);
+    }
 }
