@@ -3,7 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConcertController;
 
-Route::get('/', [ConcertController::class, 'index'])->name('home');
+Route::get('/', function () {
+    $latestConcerts = \App\Models\Concert::where('available_tickets', '>', 0)
+        ->orderBy('concert_date')
+        ->take(3)
+        ->get();
+
+    return view('welcome', ['latestConcerts' => $latestConcerts]);
+})->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
