@@ -5,7 +5,7 @@
         <header class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
             <nav class="flex items-center justify-between gap-4">
                 <Link
-                    :href="route('concerts.index')"
+                    :href="index()"
                     class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
                 >
                     ← Back to Concerts
@@ -13,20 +13,20 @@
                 <div class="flex items-center gap-4">
                     <Link
                         v-if="$page.props.auth.user"
-                        :href="route('dashboard')"
+                        :href="dashboard()"
                         class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
                     >
                         Dashboard
                     </Link>
                     <template v-else>
                         <Link
-                            :href="route('login')"
+                            :href="login()"
                             class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
                         >
                             Log in
                         </Link>
                         <Link
-                            :href="route('register')"
+                            :href="register()"
                             class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                         >
                             Register
@@ -85,8 +85,9 @@
 
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { route } from '@inertiajs/vue3';
+import { show, store } from '@/routes/concerts';
 import { ref, computed } from 'vue';
+import { dashboard, login, register } from '@/routes';
 
 const props = defineProps({
     concert: Object
@@ -106,7 +107,7 @@ function purchaseTickets() {
 
     // In a real app, this would submit to the backend
     // For now, we'll simulate with Inertia
-    visit(route('concerts.store'), {
+    visit(store(), {
         method: 'post',
         data: {
             concert_id: props.concert.id,
