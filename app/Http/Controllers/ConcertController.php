@@ -20,9 +20,7 @@ class ConcertController extends Controller
             ->orderBy('concert_date')
             ->get();
 
-        return Inertia::render('concerts/Index', [
-            'concerts' => $concerts
-        ]);
+        return view('concerts.index', ['concerts' => $concerts]);
     }
 
     /**
@@ -30,9 +28,7 @@ class ConcertController extends Controller
      */
     public function show(Concert $concert)
     {
-        return Inertia::render('concerts/Show', [
-            'concert' => $concert
-        ]);
+        return view('concerts.show', ['concert' => $concert]);
     }
 
     /**
