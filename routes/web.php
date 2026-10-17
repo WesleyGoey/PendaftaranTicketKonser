@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConcertController;
 
-Route::inertia('/', 'Welcome')->name('home');
+Route::inertia('/', 'Concerts/Index')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
