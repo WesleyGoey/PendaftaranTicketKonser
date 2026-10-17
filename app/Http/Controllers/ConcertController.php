@@ -20,6 +20,44 @@ class ConcertController extends Controller
             ->orderBy('concert_date')
             ->get();
 
+        if ($concerts->isEmpty()) {
+            $concerts = collect([
+                (new Concert)->setRawAttributes([
+                    'id' => 1,
+                    'title' => 'Konser Rock Malam Ini',
+                    'artist' => 'The Rockers',
+                    'concert_date' => \Illuminate\Support\Carbon::now()->addWeek(),
+                    'venue' => 'Gelora Bung Karno',
+                    'price' => 150000,
+                    'available_tickets' => 50,
+                    'total_tickets' => 100,
+                    'description' => 'Konser rock terbesar tahun ini dengan penampilan khusus dari tamu spesial.',
+                ]),
+                (new Concert)->setRawAttributes([
+                    'id' => 2,
+                    'title' => 'Jazz Under the Stars',
+                    'artist' => 'Sara Mendes & Quartet',
+                    'concert_date' => \Illuminate\Support\Carbon::now()->addMonth(),
+                    'venue' => 'Teater Jakarta',
+                    'price' => 250000,
+                    'available_tickets' => 30,
+                    'total_tickets' => 50,
+                    'description' => 'Malam jazz intim dengan nada soulful di bawah bintang-bintang.',
+                ]),
+                (new Concert)->setRawAttributes([
+                    'id' => 3,
+                    'title' => 'Pop Festival 2025',
+                    'artist' => 'Various Artists',
+                    'concert_date' => \Illuminate\Support\Carbon::now()->addMonths(2),
+                    'venue' => 'Parkan Salihara',
+                    'price' => 350000,
+                    'available_tickets' => 0,
+                    'total_tickets' => 200,
+                    'description' => 'Festival musik pop dengan banyak penyanyi top Indonesia.',
+                ]),
+            ]);
+        }
+
         return view('concerts.index', ['concerts' => $concerts]);
     }
 

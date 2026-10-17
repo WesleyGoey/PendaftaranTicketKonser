@@ -48,12 +48,12 @@
                                 <div class="flex-1 md:mr-6">
                                     <h2 class="text-xl font-semibold mb-2">{{ $concert->title }}</h2>
                                     <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Artist:</strong> {{ $concert->artist }}</p>
-                                    <p class="text-[#706f6c] mb-2 dark:text:#[A1A09A]"><strong>Date:</strong> {{ \Illuminate\Support\Carbon::parse($concert->concert_date)->format('F j, Y') }}</p>
-                                    <p class="text-[#706f6c] mb-2 dark:text:#[A1A09A]"><strong>Venue:</strong> {{ $concert->venue }}</p>
-                                    <p class="text:#[706f6c] mb-2 dark:text:#[A1A09A]"><strong>Price:</strong> ${{ $concert->price }} per ticket</p>
-                                    <p class="text:#[706f6c] mb-2 dark:text:#[A1A09A]"><strong>Available Tickets:</strong> {{ $concert->available_tickets }} / {{ $concert->total_tickets }}</p>
+                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Date:</strong> {{ \Illuminate\Support\Carbon::parse($concert->concert_date)->format('F j, Y') }}</p>
+                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Venue:</strong> {{ $concert->venue }}</p>
+                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Price:</strong> ${{ $concert->price }} per ticket</p>
+                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Available Tickets:</strong> {{ $concert->available_tickets }} / {{ $concert->total_tickets }}</p>
 
-                                    <p class="text:#[706f6c] mt-4 dark:text:#[A1A09A]">{{ $concert->description }}</p>
+                                    <p class="text-[#706f6c] mt-4 dark:text-[#A1A09A]">{{ $concert->description }}</p>
                                 </div>
 
                                 <div class="md:w-64 mt-6 md:mt-0">
