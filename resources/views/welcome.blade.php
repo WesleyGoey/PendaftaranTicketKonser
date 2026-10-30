@@ -23,11 +23,13 @@
 
             #quantity {
                 appearance: textfield;
+                box-sizing: border-box;
                 width: 7rem !important;
                 height: 5rem !important;
-                font-size: 5.5rem !important;
+                padding: 0 !important;
+                font-size: 4.5rem !important;
                 font-weight: 900 !important;
-                line-height: 1 !important;
+                line-height: 5rem !important;
             }
 
             @media (max-width: 640px) {
