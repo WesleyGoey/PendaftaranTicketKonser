@@ -87,6 +87,42 @@ class ConcertPurchaseTest extends TestCase
         ]);
     }
 
+    public function test_booking_email_uses_the_name_entered_for_an_existing_email(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create([
+            'name' => 'Old Name',
+            'email' => 'guest@example.com',
+        ]);
+        $concert = Concert::create([
+            'title' => 'Konser Uji',
+            'artist' => 'Artis Uji',
+            'concert_date' => now()->addWeek(),
+            'venue' => 'Gedung Uji',
+            'total_tickets' => 100,
+            'available_tickets' => 10,
+            'price' => 150000,
+        ]);
+
+        $this->post(route('concerts.store'), [
+            'name' => 'Wes',
+            'email' => 'guest@example.com',
+            'phone' => '+62 812-3456-7890',
+            'concert_id' => $concert->id,
+            'quantity' => 1,
+            'seat_type' => 'regular',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'name' => 'Wes',
+        ]);
+        Mail::assertSent(RegistrationEmail::class, function (RegistrationEmail $mail): bool {
+            return str_contains($mail->render(), 'Your booking is confirmed, Wes!');
+        });
+    }
+
     public function test_user_cannot_register_more_tickets_than_available(): void
     {
         $concert = Concert::create([

@@ -38,10 +38,14 @@ class RegistrationController extends Controller
             'diamond' => 4000000,
         ];
         $seatMultiplier = $seatMultipliers[$validated['seat_type']];
-        $user = User::firstOrCreate(
-            ['email' => $validated['email']],
-            ['name' => $validated['name'], 'password' => Str::random(40)]
-        );
+        $user = User::firstOrNew(['email' => $validated['email']]);
+        $user->name = $validated['name'];
+
+        if (! $user->exists) {
+            $user->password = Str::random(40);
+        }
+
+        $user->save();
 
         $purchase = DB::transaction(function () use ($validated, $quantity, $seatMultiplier, $user): ?TicketPurchase {
             $concert = Concert::query()
