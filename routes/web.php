@@ -6,6 +6,19 @@ use App\Models\Concert;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (! Concert::where('artist', 'Bruno Mars')->exists()) {
+        Concert::create([
+            'title' => 'Bruno Mars Live in Surabaya',
+            'artist' => 'Bruno Mars',
+            'concert_date' => '2027-02-09 18:00:00',
+            'venue' => 'Universitas Ciputra Surabaya, Indonesia',
+            'total_tickets' => 100,
+            'available_tickets' => 100,
+            'price' => 1500000,
+            'description' => 'A spectacular night of Bruno Mars hits, soulful vocals, and unforgettable live performances.',
+        ]);
+    }
+
     $concert = Concert::where('artist', 'Bruno Mars')
         ->where('available_tickets', '>', 0)
         ->orderBy('concert_date')

@@ -70,6 +70,23 @@ class ConcertPurchaseTest extends TestCase
         });
     }
 
+    public function test_homepage_creates_the_fixed_concert_when_database_is_empty(): void
+    {
+        $response = $this->get(route('home'));
+
+        $response->assertOk();
+        $response->assertSee('Bruno Mars Live in Surabaya');
+        $response->assertSee('Regular');
+        $response->assertSee('Premium');
+        $response->assertSee('VIP');
+        $response->assertSee('Diamond');
+        $this->assertDatabaseHas('concerts', [
+            'artist' => 'Bruno Mars',
+            'available_tickets' => 100,
+            'venue' => 'Universitas Ciputra Surabaya, Indonesia',
+        ]);
+    }
+
     public function test_user_cannot_register_more_tickets_than_available(): void
     {
         $concert = Concert::create([
