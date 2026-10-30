@@ -3,76 +3,33 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>Concert Tickets</title>
-
-        <!-- Fonts -->
+        <title>Bruno Mars Live — Ticket Registration</title>
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-
-        <!-- Styles -->
         @vite(['resources/css/app.css', 'resources/js/app.ts'])
     </head>
-    <body class="font-sans antialiased bg-[#FDFDFC] text-[#1b1b18] dark:bg-[#0a0a0a]">
-        <div class="flex min-h-screen flex-col items-center p-6 lg:justify-center lg:p-8">
-            <header class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
-                <nav class="flex items-center justify-end gap-4">
-                    @auth
-                        <a href="{{ route('dashboard') }}"
-                           class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]">
-                            Dashboard
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}"
-                           class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]">
-                            Log in
-                        </a>
-                        <a href="{{ route('register') }}"
-                           class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
-                            Register
-                        </a>
-                    @endauth
-                </nav>
-            </header>
-
-            <main class="flex w-full flex-col items-center gap-6">
-                <h1 class="text-2xl font-bold mb-4">Upcoming Concerts</h1>
-
-                <div class="w-full max-w-4xl space-y-6">
-                    @forelse ($concerts as $concert)
-                        <div class="bg-white rounded-lg shadow-md p-6 dark:bg-[#161615] dark:text-[#EDEDEC]">
-                            <div class="flex flex-col md:flex-row md:items-start md:justify-between">
-                                <div class="flex-1 md:mr-6">
-                                    <h2 class="text-xl font-semibold mb-2">{{ $concert->title }}</h2>
-                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Artist:</strong> {{ $concert->artist }}</p>
-                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Date:</strong> {{ \Illuminate\Support\Carbon::parse($concert->concert_date)->format('F j, Y') }}</p>
-                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Venue:</strong> {{ $concert->venue }}</p>
-                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Price:</strong> ${{ $concert->price }} per ticket</p>
-                                    <p class="text-[#706f6c] mb-2 dark:text-[#A1A09A]"><strong>Available Tickets:</strong> {{ $concert->available_tickets }} / {{ $concert->total_tickets }}</p>
-
-                                    <p class="text-[#706f6c] mt-4 dark:text-[#A1A09A]">{{ $concert->description }}</p>
-                                </div>
-
-                                <div class="md:w-64 mt-6 md:mt-0">
-                                    @if ($concert->available_tickets > 0)
-                                        <a href="{{ route('concerts.show', $concert) }}"
-                                           class="w-full inline-block rounded-sm border border-black bg-[#1b1b18] px-5 py-1.5 text-sm leading-normal text-white hover:border-black hover:bg-black dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white">
-                                            View Details & Buy Tickets
-                                        </a>
-                                    @else
-                                        <p class="text-center text-[#706f6c] mt-6 dark:text:#[A1A09A]">Sold Out</p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-center text-[#706f6c]">No concerts available.</p>
-                    @endforelse
-                </div>
-            </main>
-        </div>
+    <body class="min-h-screen bg-[#0b0914] font-sans text-white antialiased">
+        <header class="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
+            <a href="{{ route('home') }}" class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-full border border-[#e7c37b]/60 bg-[#d7ad62] text-xl text-[#3d101b]">♪</span><span class="text-xl font-bold">Bruno <span class="text-[#e7bd72]">Mars</span></span></a>
+            <nav class="flex items-center gap-3 text-sm">
+                <a href="{{ route('home') }}" class="rounded-full px-4 py-2 text-white/60 hover:text-white">Home</a>
+                @auth <a href="{{ route('dashboard') }}" class="rounded-full border border-white/15 px-4 py-2">Dashboard</a>
+                @else <a href="{{ route('login') }}" class="rounded-full px-4 py-2 text-white/70">Log in</a><a href="{{ route('register') }}" class="rounded-full bg-white px-4 py-2 font-semibold text-[#171223]">Sign up</a> @endauth
+            </nav>
+        </header>
+        <main class="mx-auto max-w-7xl px-6 pb-24 pt-12 lg:px-8">
+            <div class="mb-12 max-w-2xl"><p class="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-400">Find your next moment</p><h1 class="mt-3 text-5xl font-black tracking-tight sm:text-6xl">Choose your concert.<br><span class="text-white/45">Make your story.</span></h1><p class="mt-5 text-lg leading-8 text-white/55">Your favorite stages are here. Secure your tickets before they sell out.</p></div>
+            <div class="grid gap-6 md:grid-cols-2">
+                @forelse ($concerts as $concert)
+                    <article class="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] transition hover:border-fuchsia-400/40">
+                        <div class="relative flex h-28 items-center overflow-hidden bg-gradient-to-br from-[#7b2336] to-[#3d101b] px-6"><div class="absolute -right-6 -top-16 h-40 w-40 rounded-full border border-[#d7ad62]/25"></div><div class="absolute -bottom-24 -left-8 h-40 w-40 rounded-full border border-[#d7ad62]/20"></div><span class="relative rounded-full border border-[#f3d9a1]/40 px-3 py-1 text-xs font-bold tracking-widest text-[#f3d9a1]">BRUNO MARS LIVE</span></div>
+                        <div class="p-6"><p class="text-sm font-semibold text-fuchsia-300">{{ $concert->artist }}</p><h2 class="mt-1 text-2xl font-bold">{{ $concert->title }}</h2><p class="mt-4 text-sm text-white/55">{{ $concert->description }}</p><div class="mt-5 grid grid-cols-2 gap-3 text-sm text-white/60"><span>◷ 9 Feb 2027 · 18.00 - 22.00</span><span>⌖ {{ $concert->venue }}</span></div><div class="mt-6 flex items-center justify-between border-t border-white/10 pt-5"><div><p class="text-xs text-white/40">Starting from</p><p class="text-xl font-bold">Rp {{ number_format($concert->price, 0, ',', '.') }}</p></div><a href="{{ route('concerts.show', $concert) }}" class="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#171223] transition hover:bg-fuchsia-100">View details →</a></div></div>
+                    </article>
+                @empty
+                    <div class="col-span-full rounded-3xl border border-dashed border-white/15 p-12 text-center text-white/50">No concerts are available right now.</div>
+                @endforelse
+            </div>
+        </main>
     </body>
 </html>

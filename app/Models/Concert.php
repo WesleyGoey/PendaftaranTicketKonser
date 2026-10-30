@@ -16,8 +16,16 @@ class Concert extends Model
         'available_tickets',
         'price',
         'description',
-        'image_url'
+        'image_url',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'concert_date' => 'datetime',
+            'price' => 'decimal:2',
+        ];
+    }
 
     public function ticketPurchases(): HasMany
     {

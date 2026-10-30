@@ -8,11 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TicketPurchase extends Model
 {
     protected $fillable = [
+        'confirmation_code',
+        'phone',
+        'notes',
         'user_id',
         'concert_id',
         'quantity',
+        'seat_type',
         'total_price',
-        'status'
+        'status',
     ];
 
     public function user(): BelongsTo

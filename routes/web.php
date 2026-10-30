@@ -1,15 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ConcertController;
+use App\Http\Controllers\RegistrationController;
+use App\Models\Concert;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $latestConcerts = \App\Models\Concert::where('available_tickets', '>', 0)
+    $concert = Concert::where('artist', 'Bruno Mars')
+        ->where('available_tickets', '>', 0)
         ->orderBy('concert_date')
-        ->take(3)
-        ->get();
+        ->first();
 
-    return view('welcome', ['latestConcerts' => $latestConcerts]);
+    return view('welcome', compact('concert'));
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -19,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Concert routes
 Route::get('/concerts', [ConcertController::class, 'index'])->name('concerts.index');
 Route::get('/concerts/{concert}', [ConcertController::class, 'show'])->name('concerts.show');
-Route::post('/concerts/purchase', [ConcertController::class, 'store'])->name('concerts.store');
+Route::post('/concerts/purchase', [RegistrationController::class, 'store'])
+    ->name('concerts.store');
 
 require __DIR__.'/settings.php';
