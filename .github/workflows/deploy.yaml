@@ -111,7 +111,8 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         port: 22
         source: "vendor.tar.gz"
-        target: "/home/fsd-pendaftaranticketkonser/htdocs/pendaftaranticketkonser.fsd.my.id"
+        target: "/home/fsd-pendaftaranticketkonser/htdocs/pendaftaranticketkonser.fsd.my.id/"
+        overwrite: true
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.2.5
@@ -121,12 +122,20 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         port: 22
         script: |
+          set -eu
           cd /home/fsd-pendaftaranticketkonser/htdocs/pendaftaranticketkonser.fsd.my.id
           git pull origin main
-          rm -f bootstrap/cache/*.php
-          rm -rf vendor
-          tar -xzf vendor.tar.gz
+          test -f vendor.tar.gz
+          rm -rf vendor.deploy
+          mkdir vendor.deploy
+          tar -xzf vendor.tar.gz -C vendor.deploy
+          test -f vendor.deploy/vendor/autoload.php
+          rm -rf vendor.previous
+          if [ -d vendor ]; then mv vendor vendor.previous; fi
+          mv vendor.deploy/vendor vendor
+          rm -rf vendor.previous
           rm -f vendor.tar.gz
+          rm -f bootstrap/cache/*.php
           php artisan package:discover --ansi
           php artisan migrate --force
           php artisan config:cache
