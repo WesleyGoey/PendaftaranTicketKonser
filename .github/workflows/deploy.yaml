@@ -93,7 +93,7 @@ jobs:
     # vendor/ is gitignored, so it must be built here (production deps only) and
     # shipped to the server separately, since the server does not have Composer.
     - name: Install Production Composer Dependencies
-      run: composer install --no-dev --optimize-autoloader --prefer-dist --no-ansi --no-interaction --no-progress
+      run: composer install --no-dev --no-scripts --optimize-autoloader --prefer-dist --no-ansi --no-interaction --no-progress
 
     - name: Build Production Assets
       run: |
@@ -123,8 +123,10 @@ jobs:
         script: |
           cd /home/fsd-pendaftaranticketkonser/htdocs/pendaftaranticketkonser.fsd.my.id
           git pull origin main
+          rm -f bootstrap/cache/*.php
           rm -rf vendor
           tar -xzf vendor.tar.gz
           rm -f vendor.tar.gz
+          php artisan package:discover --ansi
           php artisan migrate --force
           php artisan config:cache
