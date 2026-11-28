@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Auth\SupabaseGuard;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\FakesSupabase;
 use Tests\TestCase;
@@ -62,5 +63,16 @@ class RegistrationTest extends TestCase
 
         $this->post(route('register.store'), $this->input())
             ->assertSessionHasErrors(['email' => 'Password is too weak.']);
+    }
+
+    public function test_a_simple_password_is_accepted_in_production()
+    {
+        $this->fakeSupabase();
+        $this->app['env'] = 'production';
+        $this->withoutMiddleware(PreventRequestForgery::class);
+
+        $this->post(route('register.store'), $this->input(['password' => 'admin123', 'password_confirmation' => 'admin123']))
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('login'));
     }
 }
