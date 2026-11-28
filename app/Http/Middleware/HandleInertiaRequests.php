@@ -2,8 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
+use Inertia\Support\Header;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -15,6 +19,24 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    /**
+     * Hanya login dan register yang memakai Inertia. Kalau kunjungan Inertia berakhir
+     * di halaman Blade (misalnya diarahkan ke halaman utama karena sudah login),
+     * minta browser memuat halaman penuh. Tanpa ini, Inertia menampilkannya dalam
+     * kotak di atas halaman yang sedang dibuka.
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = parent::handle($request, $next);
+
+        if ($request->header(Header::INERTIA) && $request->isMethod('GET')
+            && $response->isSuccessful() && ! $response->headers->has(Header::INERTIA)) {
+            return Inertia::location($request->fullUrl());
+        }
+
+        return $response;
+    }
 
     /**
      * Determines the current asset version.
