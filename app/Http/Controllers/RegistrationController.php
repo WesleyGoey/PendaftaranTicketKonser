@@ -2,81 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use App\Auth\SupabaseGuard;
 use App\Mail\RegistrationEmail;
-use App\Models\Concert;
-use App\Models\TicketPurchase;
+use App\Services\SupabaseException;
+use App\Services\TicketStore;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class RegistrationController extends Controller
 {
+    public function __construct(private TicketStore $store) {}
+
     /**
-     * Show the signed-in user's own bookings, newest first.
+     * Riwayat pesanan user yang sedang login, terbaru di atas.
      */
     public function index(Request $request): View
     {
-        return view('tickets.index', [
-            'purchases' => $request->user()->ticketPurchases()->with('concert')->latest()->latest('id')->get(),
-        ]);
-    }
-
-    /**
-     * Store a new ticket booking for the signed-in user.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $seats = config('tickets.seats');
-
-        $validated = $request->validate([
-            'phone' => ['required', 'string', 'max:30'],
-            'concert_id' => ['required', 'exists:concerts,id'],
-            'quantity' => ['required', 'integer', 'min:1'],
-            'seat_type' => ['required', Rule::in(array_keys($seats))],
-        ]);
-
-        $quantity = (int) $validated['quantity'];
-        $seatPrice = $seats[$validated['seat_type']]['price'];
-        $user = $request->user();
-
-        $purchase = DB::transaction(function () use ($validated, $quantity, $seatPrice, $user): ?TicketPurchase {
-            $concert = Concert::query()
-                ->whereKey($validated['concert_id'])
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            if ($concert->available_tickets < $quantity) {
-                return null;
-            }
-
-            $purchase = TicketPurchase::create([
-                'confirmation_code' => $this->createConfirmationCode(),
-                'phone' => $validated['phone'],
-                'user_id' => $user->id,
-                'concert_id' => $concert->id,
-                'quantity' => $quantity,
-                'seat_type' => $validated['seat_type'],
-                'total_price' => $seatPrice * $quantity,
-                'status' => 'pending',
-            ]);
-
-            $concert->decrement('available_tickets', $quantity);
-
-            return $purchase->load('concert');
-        });
-
-        if (! $purchase) {
-            return redirect()->back()->withInput()->with('error', 'There are not enough tickets available.');
+        try {
+            $purchases = $this->store->purchases($this->token($request));
+        } catch (SupabaseException $exception) {
+            report($exception);
+            abort(503);
         }
 
+        return view('tickets.index', ['purchases' => $purchases]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'phone' => ['required', 'string', 'max:30'],
+            'concert_id' => ['required', 'integer', 'min:1'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'seat_type' => ['required', Rule::in(array_keys(config('tickets.seats')))],
+        ]);
+
         try {
+            $purchase = $this->store->book(
+                $this->token($request),
+                (int) $validated['concert_id'],
+                (int) $validated['quantity'],
+                $validated['seat_type'],
+                $validated['phone'],
+            );
+        } catch (SupabaseException $exception) {
+            if ($exception->getMessage() !== 'not_enough_tickets') {
+                report($exception);
+            }
+
+            return redirect()->back()->withInput()->with('error', $exception->getMessage() === 'not_enough_tickets'
+                ? 'There are not enough tickets available.'
+                : 'We could not complete your booking. Check My Tickets before trying again.');
+        }
+
+        $user = $request->user();
+
+        try {
+            // Detail konser hanya untuk isi email.
+            $purchase->setRelation('concert', $this->store->concert((int) $validated['concert_id']));
+
             Mail::to($user->email)->send(new RegistrationEmail($user->email, $user->name, $purchase));
-        } catch (TransportExceptionInterface $exception) {
+        } catch (SupabaseException|TransportExceptionInterface $exception) {
             report($exception);
 
             return redirect()->back()->with(
@@ -88,12 +78,8 @@ class RegistrationController extends Controller
         return redirect()->back()->with('success', 'Please check your email to find your booking code.');
     }
 
-    private function createConfirmationCode(): string
+    private function token(Request $request): string
     {
-        do {
-            $code = Str::upper(Str::random(8));
-        } while (TicketPurchase::where('confirmation_code', $code)->exists());
-
-        return $code;
+        return (string) $request->session()->get(SupabaseGuard::SESSION_KEY.'.access_token');
     }
 }

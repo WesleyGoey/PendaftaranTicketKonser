@@ -11,7 +11,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
-        @vite(['resources/css/app.css'])
+        @vite(['resources/css/app.css', 'resources/js/realtime.js'])
     </head>
     <body class="flex min-h-screen flex-col font-sans antialiased">
         <header class="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-5 py-5 lg:px-8">

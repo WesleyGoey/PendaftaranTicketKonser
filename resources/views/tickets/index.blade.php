@@ -3,6 +3,7 @@
         <h1 class="font-display text-4xl font-extrabold tracking-tight sm:text-5xl">My Tickets</h1>
         <p class="mt-4 text-cream-muted">Your booking history, newest first.</p>
 
+        <div data-live="tickets">
         @if ($purchases->isEmpty())
             <div class="panel mt-10 p-10 text-center">
                 <p class="text-lg font-bold">No bookings yet</p>
@@ -32,5 +33,6 @@
                 @endforeach
             </ul>
         @endif
+        </div>
     </section>
 </x-layout>

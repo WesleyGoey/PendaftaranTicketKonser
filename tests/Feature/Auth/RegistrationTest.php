@@ -2,56 +2,65 @@
 
 namespace Tests\Feature\Auth;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Fortify\Features;
+use App\Auth\SupabaseGuard;
+use Illuminate\Support\Facades\Http;
+use Tests\Concerns\FakesSupabase;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
 {
-    use RefreshDatabase;
+    use FakesSupabase;
 
-    protected function setUp(): void
+    /**
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    private function input(array $overrides = []): array
     {
-        parent::setUp();
-
-        $this->skipUnlessFortifyHas(Features::registration());
+        return [
+            'name' => 'Test User',
+            'email' => 'Test@Example.com',
+            'phone' => '+62 812-3456-7890',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            ...$overrides,
+        ];
     }
 
     public function test_registration_screen_can_be_rendered()
     {
-        $response = $this->get(route('register'));
-
-        $response->assertOk();
+        $this->get(route('register'))->assertOk();
     }
 
-    public function test_new_users_can_register()
+    public function test_new_users_are_registered_in_supabase_and_asked_to_check_email()
     {
-        $response = $this->post(route('register.store'), [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'phone' => '+62 812-3456-7890',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
+        $this->fakeSupabase();
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('home', absolute: false));
+        $this->post(route('register.store'), $this->input())
+            ->assertRedirect(route('login'))
+            ->assertSessionHas('status', 'Check your email to confirm your account, then log in.')
+            ->assertSessionMissing(SupabaseGuard::SESSION_KEY);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/auth/v1/signup?redirect_to=')
+            && $request['email'] === 'test@example.com'
+            && $request['data'] === ['display_name' => 'Test User', 'phone' => '+62 812-3456-7890']);
     }
 
-    public function test_registration_saves_the_phone_number_and_requires_it()
+    public function test_phone_number_and_password_confirmation_are_required()
     {
-        $input = [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ];
+        Http::fake();
 
-        $this->post(route('register.store'), $input)->assertSessionHasErrors('phone');
-        $this->assertGuest();
+        $this->post(route('register.store'), $this->input(['phone' => '', 'password_confirmation' => 'different']))
+            ->assertSessionHasErrors(['phone', 'password']);
 
-        $this->post(route('register.store'), [...$input, 'phone' => '+62 812-3456-7890']);
+        Http::assertNothingSent();
+    }
 
-        $this->assertDatabaseHas('users', ['email' => 'test@example.com', 'phone' => '+62 812-3456-7890']);
+    public function test_supabase_rejection_is_shown_on_the_form()
+    {
+        $this->fakeSupabase(['*/auth/v1/signup*' => Http::response(['error_code' => 'weak_password', 'msg' => 'Password is too weak.'], 422)]);
+
+        $this->post(route('register.store'), $this->input())
+            ->assertSessionHasErrors(['email' => 'Password is too weak.']);
     }
 }

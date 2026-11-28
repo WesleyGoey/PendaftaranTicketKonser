@@ -6,6 +6,7 @@
 
 <x-layout title="Bruno Mars Live — Tickets">
     <section class="mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-20 pt-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-16 lg:px-8 lg:pb-28 lg:pt-16">
+        {{-- data-live: bagian yang diperbarui realtime. --}}
         <div>
             <h1 class="font-display text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-7xl">
                 The night starts with a little funk.
@@ -16,7 +17,7 @@
         </div>
 
         @if ($concert)
-            <div class="w-full max-w-md overflow-hidden rounded-2xl bg-gold-soft text-wine lg:max-w-none">
+            <div data-live="hero-ticket" class="w-full max-w-md overflow-hidden rounded-2xl bg-gold-soft text-wine lg:max-w-none">
                 <div class="px-7 pb-6 pt-7">
                     <p class="font-display text-4xl font-extrabold leading-tight tracking-tight">{{ $concert->concert_date->format('j F Y') }}</p>
                     <p class="mt-1 text-lg font-semibold tabular-nums">18.00 - 22.00</p>
@@ -46,9 +47,9 @@
         <h2 class="font-display text-3xl font-extrabold sm:text-4xl">Book your tickets</h2>
 
         @if (! $concert)
-            <p class="panel mt-8 p-8 text-cream-muted">Tickets are not available right now.</p>
+            <p data-live="no-concert" class="panel mt-8 p-8 text-cream-muted">Tickets are not available right now.</p>
         @else
-            <p class="mt-3 text-cream-muted">{{ $concert->title }}</p>
+            <p data-live="booking-title" class="mt-3 text-cream-muted">{{ $concert->title }}</p>
 
             @if ($errors->any())
                 <div role="alert" class="mt-6 rounded-2xl border border-red-300/40 bg-red-300/10 px-5 py-4 text-sm text-red-100">
@@ -85,7 +86,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <label for="quantity" class="text-lg font-bold">Number of tickets</label>
-                            <p class="mt-1 text-sm text-cream-muted"><span id="tickets-left" class="tabular-nums">{{ $concert->available_tickets }}</span> tickets available</p>
+                            <p class="mt-1 text-sm text-cream-muted"><span data-tickets-left class="tabular-nums">{{ $concert->available_tickets }}</span> tickets available</p>
                         </div>
                         <div class="flex items-center gap-3">
                             <button type="button" data-step="-1" aria-label="Remove one ticket" class="btn btn-line !h-12 !w-12 !p-0 !text-2xl">−</button>
@@ -153,6 +154,10 @@
                     // Cegah pesanan ganda saat tombol ditekan berkali-kali.
                     form.addEventListener('submit', () => { if (submit) { submit.disabled = true; submit.textContent = 'Booking…'; } });
                     window.addEventListener('pageshow', () => { if (submit) submit.textContent = submitLabel; update(); });
+                    document.addEventListener('concert:stock', ({ detail }) => {
+                        quantity.max = detail.available;
+                        update();
+                    });
                     update();
                 })();
             </script>

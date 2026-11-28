@@ -16,7 +16,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
+        'guard' => env('AUTH_GUARD', 'supabase'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
 
@@ -38,6 +38,11 @@ return [
     */
 
     'guards' => [
+        // Akun diperiksa ke Supabase Auth (lihat App\Auth\SupabaseGuard).
+        'supabase' => [
+            'driver' => 'supabase',
+        ],
+
         'web' => [
             'driver' => 'session',
             'provider' => 'users',

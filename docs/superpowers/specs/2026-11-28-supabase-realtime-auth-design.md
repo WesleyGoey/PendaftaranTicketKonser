@@ -3,6 +3,15 @@
 Tanggal: 28 November 2026
 Status: menunggu persetujuan
 
+> **Revisi 2 (28 November 2026), disetujui.** Menggantikan bagian database, authentication, dan realtime di bawah (U1, U3, Tahap 1-3, dan variabel `VITE_SUPABASE_*`):
+>
+> - Laravel tetap dipakai. Supabase diakses **hanya lewat `SUPABASE_URL` dan `SUPABASE_KEY`**; tidak ada sambungan PostgreSQL langsung.
+> - Tabel, RLS, fungsi `book_tickets`, dan publication Realtime dibuat oleh `supabase/schema.sql` di SQL Editor.
+> - Fortify tidak melayani route. `AuthController` memanggil Supabase Auth; token disimpan di sesi Laravel dan diperiksa tiap request (`App\Auth\SupabaseGuard`, padanan `protect`).
+> - Realtime: `/events` (SSE) subscribe sendiri ke Supabase selama koneksinya terbuka, lalu meneruskan perubahan ke browser. Tidak ada proses pendengar terpisah (`realtime:listen` sudah dihapus).
+> - Library tambahan: `phrity/websocket`. `@supabase/supabase-js` tidak dipakai.
+> - Tabel dan model database Laravel lama dibiarkan, tidak dipakai lagi untuk data tiket dan akun.
+
 ## 1. Tujuan
 
 Mempraktikkan materi kelas (repo `liz7124/supabase-nodejs`, branch `practice5-authentication`, yang sudah mencakup realtime) di project tiket konser:
@@ -79,7 +88,7 @@ Urutan pengerjaan mengikuti nomor tahap. Setiap tahap punya cara cek dan harus l
 - `.env.example`: tambah contoh variabel PostgreSQL (dikomentari), `SUPABASE_URL`, `SUPABASE_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY`. Default tetap SQLite supaya CI tidak berubah.
 - Migration baru: `concerts.price` dan `ticket_purchases.total_price` menjadi `decimal(12,2)`. Batas sekarang 999.999,99, padahal harga tiket sudah di atas 1 juta. PostgreSQL akan menolak.
 - Migration baru, hanya berjalan di PostgreSQL:
-  - aktifkan RLS di semua tabel pada schema `public`, termasuk `users`, `sessions`, dan `ticket_purchases`;
+  - aktifkan RLS di semua tabel milik aplikasi (daftar eksplisit), termasuk `users`, `sessions`, dan `ticket_purchases`; tabel lain di project yang sama, seperti latihan kelas, tidak disentuh;
   - beri role `anon` izin `SELECT` dan policy baca hanya untuk `concerts`.
 - Laravel tersambung sebagai pemilik tabel, jadi tidak terhalang RLS.
 - Tabel yang dibuat setelah ini harus mengaktifkan RLS di migration-nya sendiri.

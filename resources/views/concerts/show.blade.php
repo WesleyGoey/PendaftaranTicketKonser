@@ -1,5 +1,5 @@
 <x-layout :title="$concert->title.' — Bruno Mars Live'">
-    <article class="mx-auto max-w-4xl px-5 pb-20 pt-10">
+    <article data-live="concert" class="mx-auto max-w-4xl px-5 pb-20 pt-10">
         <a href="{{ route('home') }}" class="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-cream-muted hover:text-cream">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
             Back to home
