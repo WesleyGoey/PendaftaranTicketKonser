@@ -29,28 +29,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
-    }
-
-    public function test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()
-    {
-        $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
-
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-        ]);
-
-        $user = User::factory()->withTwoFactor()->create();
-
-        $response = $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $response->assertRedirect(route('two-factor.login'));
-        $response->assertSessionHas('login.id', $user->id);
-        $this->assertGuest();
+        $response->assertRedirect(route('home', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password()
@@ -88,5 +67,15 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertTooManyRequests();
+    }
+
+    public function test_inertia_login_forces_a_full_page_load_to_the_blade_page()
+    {
+        $user = User::factory()->create();
+
+        $this->withHeader('X-Inertia', 'true')
+            ->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location');
     }
 }

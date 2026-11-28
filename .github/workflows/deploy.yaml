@@ -90,8 +90,8 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: ${{ runner.os }}-composer-
 
-    # vendor/ is gitignored, so it must be built here (production deps only) and
-    # shipped to the server separately, since the server does not have Composer.
+    # vendor/ and public/build are gitignored, so both are built here and shipped
+    # to the server separately, since the server does not have Composer.
     - name: Install Production Composer Dependencies
       run: composer install --no-dev --no-scripts --optimize-autoloader --prefer-dist --no-ansi --no-interaction --no-progress
 
@@ -100,17 +100,19 @@ jobs:
         npm ci
         npm run build
 
-    - name: Package Vendor Directory
-      run: tar -czf vendor.tar.gz vendor
+    - name: Package Vendor And Built Assets
+      run: |
+        test -f public/build/manifest.json
+        tar -czf release.tar.gz vendor public/build
 
-    - name: Upload Vendor Package to Server
+    - name: Upload Release Package to Server
       uses: appleboy/scp-action@v1.0.0
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
         port: 22
-        source: "vendor.tar.gz"
+        source: "release.tar.gz"
         target: "/home/fsd-pendaftaranticketkonser/htdocs/pendaftaranticketkonser.fsd.my.id/"
         overwrite: true
 
@@ -125,17 +127,20 @@ jobs:
           set -eu
           cd /home/fsd-pendaftaranticketkonser/htdocs/pendaftaranticketkonser.fsd.my.id
           git pull origin main
-          test -f vendor.tar.gz
-          rm -rf vendor.deploy
-          mkdir vendor.deploy
-          tar -xzf vendor.tar.gz -C vendor.deploy
-          test -f vendor.deploy/vendor/autoload.php
-          rm -rf vendor.previous
+          test -f release.tar.gz
+          rm -rf release.deploy
+          mkdir release.deploy
+          tar -xzf release.tar.gz -C release.deploy
+          test -f release.deploy/vendor/autoload.php
+          test -f release.deploy/public/build/manifest.json
+          rm -rf vendor.previous public/build.previous
           if [ -d vendor ]; then mv vendor vendor.previous; fi
-          mv vendor.deploy/vendor vendor
-          rm -rf vendor.previous
-          rm -f vendor.tar.gz
+          mv release.deploy/vendor vendor
+          if [ -d public/build ]; then mv public/build public/build.previous; fi
+          mv release.deploy/public/build public/build
+          rm -rf vendor.previous public/build.previous release.deploy release.tar.gz
           rm -f bootstrap/cache/*.php
           php artisan package:discover --ansi
           php artisan migrate --force
           php artisan config:cache
+          php artisan view:clear
