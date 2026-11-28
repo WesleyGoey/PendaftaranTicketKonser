@@ -14,30 +14,26 @@
         @vite(['resources/css/app.css'])
     </head>
     <body class="flex min-h-screen flex-col font-sans antialiased">
-        <header class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-5 lg:px-8">
-            <a href="{{ route('home') }}" class="flex items-center gap-3">
-                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-gold text-wine">
+        <header class="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-5 py-5 lg:px-8">
+            <a href="{{ route('home') }}" aria-label="Bruno Mars Live, home" class="flex min-h-11 items-center gap-2.5">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-wine">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
                 </span>
-                <span class="font-display text-xl font-extrabold">Bruno <span class="text-gold-soft">Mars</span></span>
+                <span class="font-display text-xl font-extrabold {{ auth()->check() ? 'max-[419px]:hidden' : '' }}">Bruno <span class="text-gold-soft">Mars</span></span>
             </a>
 
-            <nav aria-label="Main" class="flex flex-wrap items-center gap-1 text-sm font-semibold">
-                @foreach (array_filter(['home' => 'Home', 'tickets.index' => auth()->check() ? 'My Tickets' : null]) as $routeName => $label)
-                    <a href="{{ route($routeName) }}"
-                        @if (request()->routeIs($routeName)) aria-current="page" @endif
-                        class="rounded-full px-4 py-2.5 text-cream-muted transition hover:text-cream aria-[current=page]:bg-velvet aria-[current=page]:text-cream">{{ $label }}</a>
-                @endforeach
-
+            <nav aria-label="Main" class="flex items-center gap-1 text-sm font-semibold">
                 @auth
-                    <span class="hidden max-w-40 truncate border-l border-border pl-4 font-medium text-cream-muted sm:inline">{{ auth()->user()->name }}</span>
+                    <a href="{{ route('tickets.index') }}"
+                        @if (request()->routeIs('tickets.index')) aria-current="page" @endif
+                        class="flex min-h-11 items-center whitespace-nowrap rounded-full px-4 text-cream transition hover:bg-velvet aria-[current=page]:bg-velvet aria-[current=page]:text-gold-soft">My Tickets</a>
+                    <span class="mx-2 hidden max-w-40 truncate border-l border-border pl-4 font-medium text-cream-muted sm:inline">{{ auth()->user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="btn btn-line ml-2 !px-4 !py-2">Log out</button>
+                        <button type="submit" class="btn btn-line whitespace-nowrap !px-4 !py-2">Log out</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="rounded-full px-4 py-2.5 text-cream-muted transition hover:text-cream">Log in</a>
-                    <a href="{{ route('register') }}" class="btn btn-gold !px-5 !py-2">Sign up</a>
+                    <a href="{{ route('login') }}" class="btn btn-line !px-6 !py-2">Log in</a>
                 @endauth
             </nav>
         </header>

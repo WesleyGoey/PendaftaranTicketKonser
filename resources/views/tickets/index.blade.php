@@ -15,7 +15,8 @@
                     <li class="panel grid sm:grid-cols-[minmax(0,1fr)_15rem]">
                         <div class="p-6">
                             <h2 class="font-display text-xl font-extrabold">{{ $purchase->concert->title }}</h2>
-                            <p class="mt-1 text-sm text-cream-muted">{{ $purchase->concert->concert_date->format('j F Y') }}, 18.00 - 22.00 · {{ $purchase->concert->venue }}</p>
+                            <p class="mt-2 text-sm text-cream-muted">{{ $purchase->concert->concert_date->format('j F Y') }}, 18.00 - 22.00</p>
+                            <p class="text-sm text-cream-muted">{{ $purchase->concert->venue }}</p>
                             <dl class="mt-5 flex flex-wrap gap-x-10 gap-y-3 whitespace-nowrap text-sm">
                                 <div><dt class="text-cream-muted">Seat</dt><dd class="mt-1 font-bold">{{ config("tickets.seats.{$purchase->seat_type}.label", ucfirst($purchase->seat_type)) }}</dd></div>
                                 <div><dt class="text-cream-muted">Tickets</dt><dd class="mt-1 font-bold tabular-nums">{{ $purchase->quantity }}</dd></div>

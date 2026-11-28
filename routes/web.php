@@ -28,7 +28,8 @@ Route::get('/', function () {
 })->name('home');
 
 // Concert routes
-Route::get('/concerts', [ConcertController::class, 'index'])->name('concerts.index');
+// Daftar konser dihapus; alamat lama diarahkan ke halaman utama.
+Route::redirect('/concerts', '/');
 Route::get('/concerts/{concert}', [ConcertController::class, 'show'])->name('concerts.show');
 
 Route::middleware('auth')->group(function () {

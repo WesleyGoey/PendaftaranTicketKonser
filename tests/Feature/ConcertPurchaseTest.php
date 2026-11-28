@@ -110,7 +110,8 @@ class ConcertPurchaseTest extends TestCase
             ->assertOk()
             ->assertSee('Log in to book')
             ->assertDontSee('Confirm booking')
-            ->assertDontSee('My Tickets');
+            ->assertDontSee('Sign up')
+            ->assertDontSee(route('tickets.index'), false);
 
         $this->get(route('tickets.index'))->assertRedirect(route('login'));
     }
@@ -169,7 +170,13 @@ class ConcertPurchaseTest extends TestCase
             ->assertOk()
             ->assertSee('Rp 1.000.000')
             ->assertSee('Diamond')
-            ->assertSee('Book tickets');
+            ->assertSee('Book tickets')
+            ->assertSee('Back to home');
+    }
+
+    public function test_old_concert_list_address_redirects_home(): void
+    {
+        $this->get('/concerts')->assertRedirect('/');
     }
 
     public function test_user_cannot_register_more_tickets_than_available(): void

@@ -5,22 +5,40 @@
 @endphp
 
 <x-layout title="Bruno Mars Live — Tickets">
-    <section class="mx-auto max-w-4xl px-5 pb-16 pt-12 text-center lg:pt-20">
-        <h1 class="font-display text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-7xl">
-            The night starts<br>
-            <span class="text-gold-soft">with a little funk.</span>
-        </h1>
-        <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-cream-muted">
-            Secure your place for an unforgettable Bruno Mars show. Choose your seat category and get ready to dance all night.
-        </p>
-        <a href="#booking" class="btn btn-gold mt-9 !px-8 !py-4 !text-base">Reserve your tickets</a>
+    <section class="mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-20 pt-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-16 lg:px-8 lg:pb-28 lg:pt-16">
+        <div>
+            <h1 class="font-display text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-7xl">
+                The night starts with a little funk.
+            </h1>
+            <p class="mt-6 max-w-lg text-lg leading-8 text-cream-muted">
+                Secure your place for an unforgettable Bruno Mars show. Choose your seat category and get ready to dance all night.
+            </p>
+        </div>
 
         @if ($concert)
-            <dl class="mx-auto mt-14 grid max-w-3xl gap-y-6 border-y border-dashed border-gold/40 py-6 text-center sm:grid-cols-3">
-                <div><dt class="text-sm text-cream-muted">Date and time</dt><dd class="mt-1 font-bold">{{ $concert->concert_date->format('j F Y') }}, 18.00 - 22.00</dd></div>
-                <div><dt class="text-sm text-cream-muted">Venue</dt><dd class="mt-1 font-bold">{{ $concert->venue }}</dd></div>
-                <div><dt class="text-sm text-cream-muted">Tickets from</dt><dd class="mt-1 font-bold tabular-nums">Rp {{ number_format($lowestPrice, 0, ',', '.') }}</dd></div>
-            </dl>
+            <div class="w-full max-w-md overflow-hidden rounded-2xl bg-gold-soft text-wine lg:max-w-none">
+                <div class="px-7 pb-6 pt-7">
+                    <p class="font-display text-4xl font-extrabold leading-tight tracking-tight">{{ $concert->concert_date->format('j F Y') }}</p>
+                    <p class="mt-1 text-lg font-semibold tabular-nums">18.00 - 22.00</p>
+                    <p class="mt-4 leading-6">{{ $concert->venue }}</p>
+                </div>
+
+                {{-- Garis sobek tiket dengan dua takik. --}}
+                <div class="relative" aria-hidden="true">
+                    <span class="absolute -left-3 -top-3 h-6 w-6 rounded-full bg-ink"></span>
+                    <span class="absolute -right-3 -top-3 h-6 w-6 rounded-full bg-ink"></span>
+                    <div class="mx-6 border-t-2 border-dashed border-wine/40"></div>
+                </div>
+
+                <div class="px-7 pb-7 pt-6">
+                    <p class="flex items-baseline justify-between gap-3">
+                        <span class="font-semibold">Tickets from</span>
+                        <strong class="font-display text-2xl font-extrabold tabular-nums">Rp {{ number_format($lowestPrice, 0, ',', '.') }}</strong>
+                    </p>
+                    <a href="#booking" class="btn mt-5 w-full bg-wine !py-4 !text-base text-cream hover:bg-ink focus-visible:!outline-wine">Book tickets</a>
+                    <a href="{{ route('concerts.show', $concert) }}" class="mt-2 flex min-h-11 items-center justify-center text-sm font-bold underline focus-visible:!outline-wine">Concert details</a>
+                </div>
+            </div>
         @endif
     </section>
 
@@ -30,10 +48,7 @@
         @if (! $concert)
             <p class="panel mt-8 p-8 text-cream-muted">Tickets are not available right now.</p>
         @else
-            <p class="mt-3 text-cream-muted">
-                {{ $concert->title }} ·
-                <a href="{{ route('concerts.show', $concert) }}" class="font-semibold text-gold-soft underline">Concert details</a>
-            </p>
+            <p class="mt-3 text-cream-muted">{{ $concert->title }}</p>
 
             @if ($errors->any())
                 <div role="alert" class="mt-6 rounded-2xl border border-red-300/40 bg-red-300/10 px-5 py-4 text-sm text-red-100">
@@ -91,7 +106,7 @@
                         <input id="phone" name="phone" type="tel" value="{{ old('phone', auth()->user()->phone) }}" required maxlength="30" autocomplete="tel" class="field mt-1">
                     @else
                         <h3 class="text-lg font-bold">Log in to book</h3>
-                        <p class="mt-2 text-sm leading-6 text-cream-muted">You can look around freely. To buy tickets, log in so your booking is saved to your account.</p>
+                        <p class="mt-2 text-sm leading-6 text-cream-muted">Your booking will be saved to your account, so you can find the code again in My Tickets.</p>
                     @endauth
 
                     <div class="mt-6 border-t border-dashed border-gold/40 pt-5" aria-live="polite">
@@ -106,7 +121,6 @@
                         <button id="submit-booking" type="submit" class="btn btn-gold mt-5 w-full !py-4 !text-base">Confirm booking</button>
                     @else
                         <a href="{{ route('login') }}" class="btn btn-gold mt-5 w-full !py-4 !text-base">Log in to book</a>
-                        <p class="mt-3 text-center text-sm text-cream-muted">New here? <a href="{{ route('register') }}" class="font-semibold text-gold-soft underline">Create an account</a></p>
                     @endauth
                 </aside>
             </form>
